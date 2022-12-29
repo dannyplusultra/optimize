@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 public class PGA_Optimizer {
     private JTabbedPane tabbedPane1;
@@ -8,6 +9,7 @@ public class PGA_Optimizer {
     private JPanel Start;
     private JButton Exit_Button;
     private JButton fielButton;
+    private File file;
 
     public PGA_Optimizer() {
     JFrame frame = new JFrame("PGA Optimizer");
@@ -30,7 +32,11 @@ public class PGA_Optimizer {
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource()==fielButton) {
                    JFileChooser fileChooser = new JFileChooser();
-                   fileChooser.showOpenDialog(null);
+                   int respose = fileChooser.showOpenDialog(null);
+
+                   if(respose == JFileChooser.APPROVE_OPTION){
+                       file = new File(String.valueOf(fileChooser.getSelectedFile().getAbsoluteFile()));
+                   }
                 }
             }
         });
