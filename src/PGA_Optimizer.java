@@ -7,7 +7,15 @@ public class PGA_Optimizer {
     private JPanel PGA_Optimizer_Panel;
     private JPanel Start;
     private JButton Exit_Button;
+
 public PGA_Optimizer() {
+    JFrame frame = new JFrame("PGA Optimizer");
+    frame.setContentPane(PGA_Optimizer_Panel);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.pack();
+    frame.setLocationRelativeTo(null);
+    frame.setVisible(true);
+
     Exit_Button.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
