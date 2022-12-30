@@ -35,6 +35,8 @@ public class PGA_Optimizer {
 
     private double salary;
 
+    public int numPlayers = 6;
+
     private ArrayList <PGA_Players> Players;
 
     public PGA_Optimizer() {
@@ -73,13 +75,14 @@ public class PGA_Optimizer {
                        catch(Exception x){}
                        records.remove(0);
                        for (List<String> player : records){
-                           Players.add(new PGA_Players(player.get(1), Double.parseDouble(player.get(5)), (Double.parseDouble(player.get(9).replaceAll("%","")))/100, Double.parseDouble(player.get(10))));
+                           Players.add(new PGA_Players(player.get(1), Double.parseDouble(player.get(5))/100, (Double.parseDouble(player.get(9).replaceAll("%","")))/100, Double.parseDouble(player.get(10))));
                        }
                        int o = 0;
                    }
                 }
             }
         });
+
         RunButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -90,10 +93,12 @@ public class PGA_Optimizer {
                 System.out.println();
                 System.out.println("And a knapsack of size " + salary + " and volume " + maxprod);
 
+
+                //maxProfit(Players, salary, numPlayers);
                 noRep(Players);
                 System.out.println();
                 // Print the solution
-                double j = salary, h = maxprod, finalSalary = 0, finalProjection = 0, finalOwnership = 1;
+                double j = salary, h = 6, finalSalary = 0, finalProjection = 0, finalOwnership = 1;
                 System.out.print("Items picked (value, size, volume) for 0/1 problems without repetitions: ");
                 for(int i = Players.size(); i > 0; i--) {
                     if(dynNoRep[i][(int)j][(int)h] != dynNoRep[i - 1][(int)j][(int)h]) {
@@ -142,39 +147,90 @@ public class PGA_Optimizer {
     // Row: problem having only the first i items
     // Col: problem having a knapsack of size j
     // Third dimension: problem having a knapsack of volume h
-    private double[][][] dynNoRep;
+    private ItemProjection[][][] dynNoRep;
 
     private void noRep(ArrayList<PGA_Players> items) {
         maxprod = maxprod*10;
-        dynNoRep = new double[items.size() + 1][(int) (salary + 1)][(int) (maxprod + 1)];
-        for(int j = 0; j <= salary; j++) {
-            dynNoRep[0][j][0] = 0;
-        }
-        for(int i = 0; i <= maxprod; i++) {
-            dynNoRep[0][0][i] = 0;
-        }
-        for(int i = 0; i <= items.size(); i++) {
-            dynNoRep[i][0][0] = 0;
-        }
-        for(int i = 1; i <= items.size(); i++) {
+        salary = salary / 100;
+
+        dynNoRep = new ItemProjection[items.size() + 1][(int) (salary + 1)][(int) (numPlayers+1)];
+        for(int k = 0; k <= items.size(); k++) {
             for (int j = 0; j <= salary; j++) {
-                for (int h = 0; h <= maxprod; h++) {
+                for (int i = 0; i <= numPlayers; i++) {
+                    dynNoRep[k][j][i] = new ItemProjection(1, 0);
+                }
+            }
+        }
+
+        //start with 1 player- because 0 doesn't make sense
+        for(int i = 1; i <= items.size(); i++) {
+            //for every salary
+            for (int j = 1; j <= salary; j++) {
+                //for every combination of player
+                for (int h = 1; h <= numPlayers; h++) {
+                    //all times we get a player's attributes we do i-1 because we're indexing at 1 but we're index 0 really, ie i-1 is current
                     if (items.get(i-1).Salary > j)
                         // If the item i is too big, I  can't put it and the solution is the same of the problem with i - 1 items
                         dynNoRep[i][j][h] = dynNoRep[i - 1][j][h];
                     else {
-                        if (items.get(i-1).Ownership > h)
+                        //if the prodOnwership is > max prod, the solution is the same as the problem with i-1 items (ie don't use curr player)
+                        if (items.get(i-1).Ownership * dynNoRep[i-1][j][h].prodOwnership > maxprod)
                             // If the item i is too voluminous, I can't put it and the solution is the same of the problem with i - 1 items
                             dynNoRep[i][j][h] = dynNoRep[i - 1][j][h];
                         else {
                             // The item i could be useless and the solution is the same of the problem with i - 1 items, or it could be
                             // useful and the solution is "(solution of knapsack of size j - item[i].size and volume h - item[i].volume) + item[i].value"
-                            dynNoRep[i][j][h] = Math.max(dynNoRep[i - 1][j][h], dynNoRep[i - 1][(int) (j - items.get(i-1).Salary)][(int) (h * items.get(i-1).Ownership)] + items.get(i-1).Projection);
+
+                            //iff previous projection is greater than getting rid of previous and putting in new, take previous
+                            if(dynNoRep[i - 1][j][h].Projection > dynNoRep[i - 1][(int) (j - items.get(i-1).Salary)][h-1].Projection + items.get(i-1).Projection){
+                                dynNoRep[i][j][h] = dynNoRep[i - 1][j][h];
+                            }
+                            else{
+                                dynNoRep[i][j][h] = new ItemProjection(dynNoRep[i - 1][(int) (j - items.get(i-1).Salary)][h-1].prodOwnership * items.get(i-1).Ownership, dynNoRep[i - 1][(int) (j - items.get(i-1).Salary)][h-1].Projection + items.get(i-1).Projection);
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    // To store the dp values
+    public double[][][] dp;
+
+    public void maxProfit(ArrayList<PGA_Players> items, double maxSalary, int numPlayers)
+    {
+        dp = new double[items.size()+1][(int)maxSalary+1][numPlayers+1];
+        // for each element given
+        for(int i = 1; i <= items.size(); i++)
+        {
+
+            // For each possible
+            // weight value
+            for(int j = 1; j <= maxSalary; j++)
+            {
+
+                // For each case where
+                // the total elements are
+                // less than the constraint
+                for(int k = 1; k <= numPlayers; k++)
+                {
+
+                    // To ensure that we dont
+                    // go out of the array
+                    if (j >= items.get(i - 1).Salary)
+                    {
+                        dp[i][j][k] = Math.max(dp[i - 1][j][k],
+                                dp[i - 1][(int) (j - items.get(i - 1).Salary)][k - 1] + items.get(i - 1).Projection);
+                    }
+                    else
+                    {
+                        dp[i][j][k] = dp[i - 1][j][k];
+                    }
+                }
+            }
+        }
+        //return dp[n][max_W][max_E];
     }
 }
 
