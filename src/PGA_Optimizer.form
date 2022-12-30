@@ -78,7 +78,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <text value="50000"/>
+                </properties>
               </component>
               <component id="869ba" class="javax.swing.JLabel">
                 <constraints>
@@ -94,7 +96,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <text value="1"/>
+                </properties>
               </component>
               <component id="53ea" class="javax.swing.JLabel">
                 <constraints>
@@ -110,7 +114,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <text value="1"/>
+                </properties>
               </component>
               <component id="8b2c6" class="javax.swing.JLabel" binding="UniquesPerLineup">
                 <constraints>
@@ -126,7 +132,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <text value="1"/>
+                </properties>
               </component>
               <component id="59bbc" class="javax.swing.JLabel" binding="NumLineups">
                 <constraints>
@@ -142,7 +150,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <text value="1"/>
+                </properties>
               </component>
             </children>
           </grid>
